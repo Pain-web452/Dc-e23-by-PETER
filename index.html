@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger Automation Bot</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #fff0f5; padding: 20px; text-align: center; }
+        .container { max-width: 450px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #d81b60; }
+        h2 { color: #d81b60; margin-bottom: 5px; }
+        .dev { font-size: 12px; color: #555; font-weight: bold; margin-bottom: 15px; }
+        .badge { background: #e8f5e9; color: #2e7d32; padding: 8px; border-radius: 5px; font-size: 13px; margin-bottom: 20px; border: 1px solid #c8e6c9; }
+        label { display: block; margin: 15px 0 5px; text-align: left; font-weight: bold; color: #333; font-size: 14px; }
+        input, textarea { width: 94%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #fafafa; font-size: 14px; }
+        .btn-check { background-color: #00875a; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-submit { background-color: #d81b60; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; }
+        button:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Messenger Automation Bot</h2>
+    <div class="dev">DEVELOPED BY : PETER</div>
+    
+    <div class="badge">♻️ 12h Restart | 950MB Safe | Persistent Profile + Auto-Relogin</div>
+
+    <form action="/start-bot" method="POST" enctype="multipart/form-data">
+        <label>Messenger Cookie String:</label>
+        <textarea name="cookies" rows="4" placeholder="c_user=...; xs=...; datr=...;" required></textarea>
+
+        <button type="button" class="btn-check">🔍 CHECK COOKIES</button>
+
+        <label>Target UID / Thread ID:</label>
+        <input type="text" name="target_id" placeholder="e.g. 1000XXXXXXXXXX" required>
+
+        <label>E2EE 6-Digit PIN (Optional):</label>
+        <input type="password" name="e2ee_pin" placeholder="e.g. 123456" maxlength="6">
+
+        <label>Message Prefix (Optional):</label>
+        <input type="text" name="prefix" placeholder="e.g. [RAJ]">
+
+        <label>Messages (.txt File):</label>
+        <input type="file" name="txt_file" accept=".txt" required>
+
+        <label>Delay (In Seconds):</label>
+        <input type="number" name="delay" value="120" min="5">
+
+        <button type="submit" class="btn-submit">START AUTOMATION</button>
+    </form>
+</div>
+
+</body>
+</html>
