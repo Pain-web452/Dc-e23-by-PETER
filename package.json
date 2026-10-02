@@ -9,7 +9,7 @@
   "dependencies": {
     "body-parser": "^1.20.2",
     "express": "^4.19.2",
-    "@xaviour/fb-chat-api": "^10.4.19"
+    "fb-chat-api": "https://github.com"
   },
   "engines": {
     "node": ">=18.0.0"
