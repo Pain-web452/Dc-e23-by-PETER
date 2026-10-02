@@ -1,9 +1,11 @@
 const express = require('express');
-const login = require('fb-chat-api');
+const login = require('@xaviour/fb-chat-api'); // नई स्थिर लाइब्रेरी यहाँ लिंक की गई है
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const app = express();
+const app = report => express();
+const router = express.Router();
+
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
