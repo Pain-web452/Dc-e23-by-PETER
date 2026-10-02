@@ -1,5 +1,5 @@
 const express = require('express');
-const login = require('@distfx/fb-chat-api'); // नई वर्किंग लाइब्रेरी यहाँ लिंक की गई है
+const login = require('fb-chat-api');
 const bodyParser = require('body-parser');
 const path = require('path');
 
