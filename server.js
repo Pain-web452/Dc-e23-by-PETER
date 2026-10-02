@@ -1,5 +1,5 @@
 const express = require('express');
-const login = require('fb-chat-api');
+const login = require('@distfx/fb-chat-api'); // नई वर्किंग लाइब्रेरी यहाँ लिंक की गई है
 const bodyParser = require('body-parser');
 const path = require('path');
 
@@ -31,7 +31,6 @@ app.post('/api/start-bot', (req, res) => {
     const taskId = "TASK-" + Math.floor(1000 + Math.random() * 9000);
     let msgIndex = 0;
 
-    // सुरक्षा ब्लॉक बाईपास करने के लिए यूजर एजेंट सेटिंग्स
     const options = {
         forceLogin: true,
         userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -81,7 +80,6 @@ app.post('/api/stop-task', (req, res) => {
     res.status(404).json({ error: "यह टास्क ID नहीं मिली।" });
 });
 
-// Render होस्टिंग के लिए ज़रूरी नेटवर्क बाइंडिंग
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`सर्वर पोर्ट ${PORT} पर लाइव है।`);
