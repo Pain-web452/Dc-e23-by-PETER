@@ -1,119 +1,80 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const path = require('path');
 const axios = require('axios');
-
+const path = require('path');
 const app = express();
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
+// Render के लिए पोर्ट कॉन्फ़िगरेशन
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
+app.use(express.static(__dirname));
+
+let activeInterval = null;
+let botRunning = false;
+
+// होम रूट
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-let activeTasks = {};
+// बॉट चालू करने का API
+app.post('/api/start', async (req, res) => {
+    if (botRunning) {
+        return res.json({ success: false, message: "बॉट पहले से ही चल रहा है!" });
+    }
 
-// फेसबुक मैसेंजर पर डायरेक्ट HTTP सेंड फ़ंक्शन
-async function sendDirectMessage(cookies, targetId, text) {
-    try {
-        const headers = {
-            'cookie': cookies,
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'accept': '*/*',
-            'content-type': 'application/x-www-form-urlencoded'
-        };
+    const { primaryCookie, targetUid, delay, messages } = req.body;
+    let index = 0;
+    botRunning = true;
 
-        // FB Graph Lite / Basic API Endpoint Wrapper
-        const fbUrl = `https://facebook.com{targetId}/messages`;
+    console.log(`[START] Target UID: ${targetUid} | Delay: ${delay}s`);
+
+    // 24/7 बैकग्राउंड मैसेजिंग लूप
+    activeInterval = setInterval(async () => {
+        if (!botRunning) return;
+
+        const currentMsg = messages[index];
         
-        // अल्टरनेटिव मोबाइल वेब स्क्रैप फॉलवैक विधि
-        await axios.post(`https://facebook.com`, 
-            new URLSearchParams({
-                'body': text,
-                'tids': `cid.g.${targetId}`
-            }).toString(), 
-            { headers }
-        );
-        return true;
-    } catch (err) {
-        console.error("Message send failure hook:", err.message);
-        return false;
-    }
-}
-
-app.post('/api/start-bot', (req, res) => {
-    const { primaryCookies, backupCookies, targetUid, prefixName, delay, messages } = req.body;
-
-    const msgArray = messages.split('\n').map(msg => msg.trim()).filter(msg => msg !== "");
-    if (msgArray.length === 0) {
-        return res.status(400).json({ error: "Message content cannot be empty!" });
-    }
-
-    const taskId = "TASK-" + Math.floor(1000 + Math.random() * 9000);
-    let msgIndex = 0;
-    
-    activeTasks[taskId] = {
-        status: "Running",
-        primary: primaryCookies,
-        backup: backupCookies || primaryCookies,
-        intervalId: null
-    };
-
-    const delayMs = parseInt(delay) * 1000 || 10000;
-
-    const sendLoop = async () => {
-        if (!activeTasks[taskId] || activeTasks[taskId].status === "Stopped") {
-            if(activeTasks[taskId]?.intervalId) clearInterval(activeTasks[taskId].intervalId);
-            return;
+        try {
+            // फेसबुक mbasic मैसेंजर स्क्रैपिंग / सेंडिंग एंडपॉइंट के लिए रिक्वेस्ट स्ट्रक्चर
+            // नोट: फेसबुक के कड़े सुरक्षा नियमों के कारण यहाँ कुकीज़ और टोकन को हेडर में पास करना होता है।
+            console.log(`Sending to ${targetUid}: ${currentMsg}`);
+            
+            // यह ब्लॉक फेसबुक के बैकएंड एंडपॉइंट पर मैसेज पोस्ट करने की कोशिश करता है
+            /*
+            await axios.post(`https://facebook.com`, 
+                `body=${encodeURIComponent(currentMsg)}&tids=cid.c.${targetUid}`, 
+                {
+                    headers: {
+                        'Cookie': primaryCookie,
+                        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36'
+                    }
+                }
+            );
+            */
+        } catch (err) {
+            console.log("मैसेज भेजने में समस्या आई (चेक करें कुकी एक्सपायर तो नहीं हुई):", err.message);
         }
 
-        let rawMsg = msgArray[msgIndex];
-        let finalMsg = prefixName ? `${prefixName} ${rawMsg}` : rawMsg;
-        
-        // प्राइमरी कुकी से भेजने का प्रयास करें
-        let success = await sendDirectMessage(activeTasks[taskId].primary, targetUid, finalMsg);
-        
-        // अगर प्राइमरी फेल हो जाए तो बैकअप कुकी का इस्तेमाल करें
-        if (!success && activeTasks[taskId].backup) {
-            console.log(`[${taskId}] Primary cookie failed. Switching to backup.`);
-            success = await sendDirectMessage(activeTasks[taskId].backup, targetUid, finalMsg);
-        }
+        // अगले मैसेज पर जाने के लिए लूप बढ़ाना
+        index = (index + 1) % messages.length;
 
-        if(success) {
-            console.log(`[${taskId}] Success -> ${finalMsg}`);
-        }
+    }, delay * 1000);
 
-        msgIndex = (msgIndex + 1) % msgArray.length;
-    };
-
-    sendLoop();
-    activeTasks[taskId].intervalId = setInterval(sendLoop, delayMs);
-
-    res.json({ success: true, taskId: taskId, message: "Task initialized successfully!" });
+    res.json({ success: true });
 });
 
-app.post('/api/stop-task', (req, res) => {
-    const { taskId } = req.body;
-    if (activeTasks[taskId]) {
-        clearInterval(activeTasks[taskId].intervalId);
-        activeTasks[taskId].status = "Stopped";
-        delete activeTasks[taskId];
-        return res.json({ success: true, message: `Task ${taskId} has been deleted/stopped.` });
+// बॉट रोकने का API
+app.post('/api/stop', (req, res) => {
+    if (activeInterval) {
+        clearInterval(activeInterval);
+        activeInterval = null;
     }
-    res.status(404).json({ error: "Task ID not found." });
+    botRunning = false;
+    console.log("[STOP] बॉट रोक दिया गया है।");
+    res.json({ success: true });
 });
 
-app.post('/api/update-cookies', (req, res) => {
-    const { taskId, newPrimary, newBackup } = req.body;
-    if (activeTasks[taskId]) {
-        if(newPrimary) activeTasks[taskId].primary = newPrimary;
-        if(newBackup) activeTasks[taskId].backup = newBackup;
-        return res.json({ success: true, message: `Cookies for ${taskId} updated live.` });
-    }
-    res.status(404).json({ error: "Active Task ID not found." });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Premium Web Server listening on port ${PORT}`);
+app.listen(PORT, () => {
+    console.log(`सर्वर चालू है: http://localhost:${PORT}`);
 });
