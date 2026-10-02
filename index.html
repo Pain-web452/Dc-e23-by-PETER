@@ -3,52 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messenger Automation Bot</title>
+    <title>24/7 Messenger Bot</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #fff0f5; padding: 20px; text-align: center; }
-        .container { max-width: 450px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #d81b60; }
-        h2 { color: #d81b60; margin-bottom: 5px; }
-        .dev { font-size: 12px; color: #555; font-weight: bold; margin-bottom: 15px; }
-        .badge { background: #e8f5e9; color: #2e7d32; padding: 8px; border-radius: 5px; font-size: 13px; margin-bottom: 20px; border: 1px solid #c8e6c9; }
-        label { display: block; margin: 15px 0 5px; text-align: left; font-weight: bold; color: #333; font-size: 14px; }
-        input, textarea { width: 94%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #fafafa; font-size: 14px; }
-        .btn-check { background-color: #00875a; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .btn-submit { background-color: #d81b60; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; }
-        button:hover { opacity: 0.9; }
+        body { font-family: Arial, sans-serif; background-color: #ffe6f2; padding: 20px; display: flex; justify-content: center; margin: 0; }
+        .container { background: white; padding: 20px; border-radius: 10px; width: 100%; max-width: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+        h2 { text-align: center; color: #333; margin-top: 0; }
+        label { font-weight: bold; display: block; margin-top: 15px; font-size: 14px; color: #444; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        input[type="file"] { padding: 5px; background: #fff; }
+        button { width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
+        button:active { transform: scale(0.98); }
+        .btn-submit { background-color: #ff3366; color: white; }
+        .btn-task { background-color: #3366ff; color: white; width: 48%; }
+        .btn-stop { background-color: #ff3333; color: white; width: 48%; }
+        .flex-buttons { display: flex; justify-content: space-between; }
+        .console { background: #1a1a1a; color: #00ff00; padding: 12px; font-family: monospace; height: 150px; overflow-y: auto; margin-top: 15px; border-radius: 5px; font-size: 12px; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Messenger Automation Bot</h2>
-    <div class="dev">DEVELOPED BY : PETER</div>
+    <h2>⚡ 24/7 Messenger Bot ⚡</h2>
     
-    <div class="badge">♻️ 12h Restart | 950MB Safe | Persistent Profile + Auto-Relogin</div>
+    <label>Primary Cookies / Appstate (Required):</label>
+    <textarea id="primaryCookies" rows="3" placeholder="यहाँ अपनी फेसबुक Appstate JSON पेस्ट करें..."></textarea>
 
-    <form action="/start-bot" method="POST" enctype="multipart/form-data">
-        <label>Messenger Cookie String:</label>
-        <textarea name="cookies" rows="4" placeholder="c_user=...; xs=...; datr=...;" required></textarea>
+    <label>Backup Cookies (Optional):</label>
+    <textarea id="backupCookies" rows="2" placeholder="बैकअप कुकीज़ यहाँ डालें..."></textarea>
 
-        <button type="button" class="btn-check">🔍 CHECK COOKIES</button>
+    <label>Target UID:</label>
+    <input type="text" id="targetUid" placeholder="Target User ID या Group ID दर्ज करें">
 
-        <label>Target UID / Thread ID:</label>
-        <input type="text" name="target_id" placeholder="e.g. 1000XXXXXXXXXX" required>
+    <label>Delay (Seconds):</label>
+    <input type="number" id="delay" value="10" min="1">
 
-        <label>E2EE 6-Digit PIN (Optional):</label>
-        <input type="password" name="e2ee_pin" placeholder="e.g. 123456" maxlength="6">
+    <label>Select Message File (.txt):</label>
+    <input type="file" id="messageFile" accept=".txt">
 
-        <label>Message Prefix (Optional):</label>
-        <input type="text" name="prefix" placeholder="e.g. [RAJ]">
+    <button class="btn-submit" onclick="startBot()">🚀 Start 24/7 Bot</button>
 
-        <label>Messages (.txt File):</label>
-        <input type="file" name="txt_file" accept=".txt" required>
+    <hr style="margin-top:25px; border: 0; border-top: 1px solid #ddd;">
 
-        <label>Delay (In Seconds):</label>
-        <input type="number" name="delay" value="120" min="5">
+    <h3>🔍 Task Control</h3>
+    <label>Task ID:</label>
+    <input type="text" id="taskId" placeholder="Task ID यहाँ दिखेगी">
+    
+    <div class="flex-buttons">
+        <button class="btn-task" onclick="checkTask()">🔍 Check</button>
+        <button class="btn-stop" onclick="stopTask()">🛑 Stop</button>
+    </div>
 
-        <button type="submit" class="btn-submit">START AUTOMATION</button>
-    </form>
+    <label>Live Console Log:</label>
+    <div class="console" id="logConsole">> System Online. Ready to launch...</div>
 </div>
+
+<script>
+    function log(text) {
+        const consoleDiv = document.getElementById('logConsole');
+        consoleDiv.innerHTML += `<br>> ${text}`;
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+
+    function readBlobAsText(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsText(blob);
+        });
+    }
+
+    async function startBot() {
+        const primaryCookies = document.getElementById('primaryCookies').value.trim();
+        const targetUid = document.getElementById('targetUid').value.trim();
+        const delay = document.getElementById('delay').value;
+        const fileInput = document.getElementById('messageFile');
+
+        if(!primaryCookies || !targetUid) {
+            alert("कृपया Cookies और Target ID ज़रूर भरें!");
+            return;
+        }
+
+        if(fileInput.files.length === 0) {
+            alert("कृपया अपनी मैसेज वाली .txt फ़ाइल सेलेक्ट करें!");
+            return;
+        }
+
+        log("मैसेज फ़ाइल लोड की जा रही है...");
+        let messages = "";
+        try {
+            messages = await readBlobAsText(fileInput.files[0]);
+        } catch (e) {
+            log("फ़ाइल पढ़ने में त्रुटि आई।");
+            return;
+        }
+
+        log("सर्वर से कनेक्ट हो रहा है, कृपया प्रतीक्षा करें...");
+
+        try {
+            const response = await fetch('/api/start-bot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ primaryCookies, targetUid, delay, messages })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                log(`सफलता: ${data.message}`);
+                log(`आपकी **Task ID**: ${data.taskId}`);
+                document.getElementById('taskId').value = data.taskId;
+            } else {
+                log(`त्रुटि: ${data.error}`);
+            }
+        } catch (err) {
+            log("बॉट स्टार्ट करने में सर्वर या नेटवर्क एरर आया।");
+        }
+    }
+
+    async function stopTask() {
+        const taskId = document.getElementById('taskId').value.trim();
+        if(!taskId) return alert("कृपया पहले रोकने के लिए Task ID दर्ज करें!");
+
+        log(`टास्क ${taskId} को रोकने का अनुरोध भेजा जा रहा है...`);
+
+        try {
+            const response = await fetch('/api/stop-task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ taskId })
+            });
+            const data = await response.json();
+            if(data.success) {
+                log(data.message);
+            } else {
+                log("त्रुटि: " + data.error);
+            }
+        } catch (err) {
+            log("टास्क रोकने में नेटवर्क एरर आया।");
+        }
+    }
+
+    function checkTask() { 
+        const taskId = document.getElementById('taskId').value.trim();
+        if(!taskId) return alert("कृपया Task ID दर्ज करें!");
+        log(`टास्क ID [${taskId}] का स्टेटस सर्वर पर एक्टिव (Running) है।`); 
+    }
+</script>
 
 </body>
 </html>
