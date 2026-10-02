@@ -1,0 +1,163 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background-color: #ffe4e1; /* स्क्रीनशॉट जैसी लाइट पिंक थीम */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 15px;
+}
+
+.bot-container {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 460px;
+    border-radius: 15px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.06);
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.header h2 {
+    font-size: 20px;
+    color: #111;
+    margin-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ffd1dc;
+    border-radius: 8px;
+    background-color: #fffafb;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+}
+
+textarea {
+    height: 65px;
+    resize: none;
+}
+
+input:focus, textarea:focus {
+    border-color: #ff4a75;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-primary-cookie {
+    background-color: #ff4a75;
+    color: white;
+    border-radius: 20px;
+    font-size: 12px;
+    padding: 8px;
+}
+
+.btn-start-bot {
+    background-color: #ff2a5f;
+    color: white;
+    font-size: 15px;
+    margin-top: 10px;
+}
+
+/* SS Messages Preview Style */
+.file-preview {
+    border: 1px dashed #ffb6c1;
+    background-color: #fff0f2;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #444;
+    margin-top: 8px;
+    max-height: 100px;
+    overflow-y: auto;
+}
+.preview-title {
+    font-weight: bold;
+    color: #ff4a75;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+/* Task Control Section */
+.task-control-section {
+    margin-top: 25px;
+    border-top: 2px dashed #ffe4e1;
+    padding-top: 20px;
+}
+
+.task-control-section h3 {
+    font-size: 17px;
+    margin-bottom: 15px;
+    color: #111;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-stop-task {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.btn-delete-task {
+    background-color: #ef4444;
+    color: white;
+}
+
+.btn-update-cookies {
+    background-color: #2563eb;
+    color: white;
+    margin-top: 10px;
+}
+
+.status-console {
+    text-align: center;
+    margin-top: 15px;
+    padding: 8px;
+    background-color: #eee;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #555;
+}
+.status-console.running {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.margin-top-15 { margin-top: 15px; }
