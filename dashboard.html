@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HASHIRAMA WhatsApp Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0a0a;
+    color: #00ff41;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    padding: 16px;
+    min-height: 100vh;
+  }
+  h1, h2, h3 { color: #00ff41; text-shadow: 0 0 6px #00ff4188; }
+  h1 { font-size: 1.6rem; margin-bottom: 12px; letter-spacing: 2px; }
+  h2 { font-size: 1.1rem; margin-bottom: 8px; border-bottom: 1px dashed #00ff4155; padding-bottom: 4px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: #0f0f0f;
+    border: 1px solid #00ff4133;
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 16px;
+    box-shadow: 0 0 12px #00ff4111;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    background: #111;
+    border: 1px solid #00ff4144;
+    color: #00ff41;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    outline: none;
+    margin-bottom: 8px;
+  }
+  input:focus, textarea:focus { border-color: #00ff41; box-shadow: 0 0 8px #00ff4155; }
+  textarea { resize: vertical; min-height: 80px; }
+  button {
+    background: #00ff41;
+    color: #000;
+    border: none;
+    padding: 8px 18px;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: 0.15s;
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+  button:hover { background: #00cc33; box-shadow: 0 0 12px #00ff4188; }
+  button.danger { background: #ff3333; color: #fff; }
+  button.danger:hover { background: #cc0000; }
+  button:disabled { background: #333; color: #777; cursor: not-allowed; }
+
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0; }
+  .stat {
+    flex: 1;
+    min-width: 100px;
+    background: #111;
+    border: 1px solid #00ff4133;
+    border-radius: 4px;
+    padding: 10px;
+    text-align: center;
+  }
+  .stat .label { font-size: 11px; color: #00ff4199; }
+  .stat .value { font-size: 1.4rem; font-weight: bold; margin-top: 2px; }
+
+  #terminal {
+    background: #050505;
+    border: 1px solid #00ff4144;
+    border-radius: 4px;
+    padding: 10px;
+    height: 260px;
+    overflow-y: auto;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  #terminal .info { color: #00ff41; }
+  #terminal .success { color: #00ffaa; }
+  #terminal .warn { color: #ffcc00; }
+  #terminal .error { color: #ff4444; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  .badge.connected { background: #00ff4133; color: #00ff41; border: 1px solid #00ff41; }
+  .badge.disconnected { background: #ff000033; color: #ff4444; border: 1px solid #ff4444; }
+  .badge.connecting { background: #ffcc0033; color: #ffcc00; border: 1px solid #ffcc00; }
+
+  #pairingCodeDisplay {
+    font-size: 2rem;
+    letter-spacing: 6px;
+    text-align: center;
+    color: #00ffaa;
+    text-shadow: 0 0 12px #00ffaa88;
+    padding: 12px;
+    border: 1px dashed #00ffaa66;
+    border-radius: 6px;
+    margin: 10px 0;
+    min-height: 50px;
+  }
+  .hidden { display: none; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .row > * { flex: 1; min-width: 120px; }
+  .small { font-size: 11px; color: #00ff4188; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>⟦ RK RAJA XWD ⟧ WHATSAPP DASHBOARD</h1>
+  <p class="small">Pairing Code • Live Terminal • TXT/JSON Sender</p>
+
+  <div class="card">
+    <h2>◈ PAIRING / CONNECTION</h2>
+    <div class="row">
+      <input type="text" id="phoneInput" placeholder="WhatsApp number (e.g. 919876543210)" />
+      <button id="pairBtn" onclick="requestPairing()">GENERATE PAIRING CODE</button>
+      <button id="reconnectBtn" onclick="reconnect()">RECONNECT</button>
+      <button class="danger" onclick="logout()">LOGOUT</button>
+    </div>
+    <div id="pairingCodeDisplay">— — — —</div>
+    <p>
+      Status: <span id="statusBadge" class="badge disconnected">DISCONNECTED</span>
+    </p>
+    <p class="small">
+      WhatsApp → Linked Devices → Link a Device → <b>Link with phone number</b> → enter code above.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>◈ RECIPIENTS (Groups &amp; Numbers)</h2>
+    <select id="recipientSelect" size="5" style="min-height:100px;">
+      <option value="">— connected groups will appear here —</option>
+    </select>
+    <p class="small">Select a group, or type a number below.</p>
+    <input type="text" id="recipientInput" placeholder="Group UID or WhatsApp number" />
+  </div>
+
+  <div class="card">
+    <h2>◈ MESSAGE SENDER</h2>
+    <div class="row">
+      <input type="text" id="hereName" placeholder="Here Name (e.g. rk raja here)" />
+      <input type="text" id="lastName" placeholder="Last Name (e.g. raja)" />
+      <input type="number" id="sendTime" placeholder="Delay (seconds)" value="0" min="0" />
+    </div>
+
+    <label class="small">TXT file (one message per line)</label>
+    <input type="file" id="txtFile" accept=".txt" />
+
+    <label class="small">JSON paste</label>
+    <textarea id="jsonPaste" placeholder='[{"message":"Hello"}, "World"]'></textarea>
+    <button onclick="clearJson()">CLEAR JSON</button>
+
+    <label class="small">JSON file</label>
+    <input type="file" id="jsonFile" accept=".json" />
+
+    <div style="margin-top:10px;">
+      <button id="startBtn" onclick="startSend()">▶ START</button>
+      <button class="danger" id="stopBtn" onclick="stopSend()">■ STOP</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>◈ STATISTICS</h2>
+    <div class="stats">
+      <div class="stat"><div class="label">SENT</div><div class="value" id="sentCount">0</div></div>
+      <div class="stat"><div class="label">FAILED</div><div class="value" id="failedCount">0</div></div>
+      <div class="stat"><div class="label">TOTAL</div><div class="value" id="totalCount">0</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>◈ LIVE TERMINAL (SSE)</h2>
+    <div id="terminal"></div>
+  </div>
+
+</div>
+
+<script>
+let evtSource = null;
+let sending = false;
+let stopFlag = false;
+
+function connectSSE() {
+  if (evtSource) evtSource.close();
+  evtSource = new EventSource('/events');
+
+  evtSource.addEventListener('terminal', (e) => {
+    const data = JSON.parse(e.data);
+    appendTerminal(data.time, data.type, data.message);
+  });
+
+  evtSource.addEventListener('status', (e) => {
+    const data = JSON.parse(e.data);
+    updateStatus(data.status);
+  });
+
+  evtSource.addEventListener('pairing', (e) => {
+    const data = JSON.parse(e.data);
+    if (data.code) {
+      document.getElementById('pairingCodeDisplay').textContent = formatCode(data.code);
+    } else {
+      document.getElementById('pairingCodeDisplay').textContent = '— — — —';
+    }
+  });
+
+  evtSource.addEventListener('groups', (e) => {
+    const groups = JSON.parse(e.data);
+    const sel = document.getElementById('recipientSelect');
+    sel.innerHTML = '';
+    groups.forEach((g) => {
+      const opt = document.createElement('option');
+      opt.value = g.id;
+      opt.textContent = `${g.subject} (${g.id})`;
+      sel.appendChild(opt);
+    });
+  });
+
+  evtSource.addEventListener('sent', (e) => {
+    const data = JSON.parse(e.data);
+    document.getElementById('sentCount').textContent = data.count;
+  });
+
+  evtSource.addEventListener('failed', (e) => {
+    const data = JSON.parse(e.data);
+    document.getElementById('failedCount').textContent = data.count;
+  });
+
+  evtSource.onerror = () => {
+    appendTerminal(new Date().toISOString(), 'warn', 'SSE connection lost. Reconnecting…');
+    setTimeout(connectSSE, 3000);
+  };
+}
+
+function appendTerminal(time, type, message) {
+  const t = document.getElementById('terminal');
+  const line = document.createElement('div');
+  line.className = type || 'info';
+  line.textContent = `[${time}] ${message}`;
+  t.appendChild(line);
+  t.scrollTop = t.scrollHeight;
+}
+
+function updateStatus(status) {
+  const badge = document.getElementById('statusBadge');
+  badge.className = 'badge';
+  const map = {
+    open: ['CONNECTED', 'connected'],
+    connecting: ['CONNECTING', 'connecting'],
+    close: ['CLOSED', 'disconnected'],
+    loggedOut: ['LOGGED OUT', 'disconnected'],
+    restartRequired: ['RESTARTING', 'connecting'],
+    reconnecting: ['RECONNECTING', 'connecting'],
+    disconnected: ['DISCONNECTED', 'disconnected']
+  };
+  const [text, cls] = map[status] || ['UNKNOWN', 'disconnected'];
+  badge.textContent = text;
+  badge.classList.add(cls);
+}
+
+function formatCode(code) {
+  const clean = String(code).replace(/-/g, '');
+  if (clean.length === 8) return clean.slice(0, 4) + '-' + clean.slice(4);
+  return code;
+}
+
+async function requestPairing() {
+  const number = document.getElementById('phoneInput').value.trim();
+  if (!number) return alert('Please enter your WhatsApp number.');
+  document.getElementById('pairingCodeDisplay').textContent = 'Generating…';
+  appendTerminal(new Date().toISOString(), 'info', `Requesting pairing code for ${number}…`);
+
+  try {
+    const res = await fetch('/api/pair', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ number })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('pairingCodeDisplay').textContent = formatCode(data.code);
+      appendTerminal(new Date().toISOString(), 'success', `Pairing code: ${data.code}`);
+    } else {
+      document.getElementById('pairingCodeDisplay').textContent = '❌ FAILED';
+      appendTerminal(new Date().toISOString(), 'error', data.error || 'Pairing failed');
+    }
+  } catch (e) {
+    document.getElementById('pairingCodeDisplay').textContent = '❌ ERROR';
+    appendTerminal(new Date().toISOString(), 'error', e.message);
+  }
+}
+
+async function reconnect() {
+  appendTerminal(new Date().toISOString(), 'info', 'Manual reconnect requested…');
+  await fetch('/api/reconnect', { method: 'POST' });
+}
+
+async function logout() {
+  if (!confirm('Logout and clear session?')) return;
+  await fetch('/api/logout', { method: 'POST' });
+  appendTerminal(new Date().toISOString(), 'warn', 'Logged out.');
+}
+
+function clearJson() {
+  document.getElementById('jsonPaste').value = '';
+  appendTerminal(new Date().toISOString(), 'info', 'JSON cleared.');
+}
+
+async function startSend() {
+  if (sending) return alert('Already sending…');
+  const recipientSel = document.getElementById('recipientSelect').value;
+  const recipientInput = document.getElementById('recipientInput').value.trim();
+  const recipient = recipientSel || recipientInput;
+
+  if (!recipient) return alert('Please select or enter a recipient.');
+
+  const hereName = document.getElementById('hereName').value.trim();
+  const lastName = document.getElementById('lastName').value.trim();
+  const sendTime = document.getElementById('sendTime').value || '0';
+  const txtFile = document.getElementById('txtFile').files[0];
+  const jsonFile = document.getElementById('jsonFile').files[0];
+  const jsonPaste = document.getElementById('jsonPaste').value.trim();
+
+  if (!txtFile && !jsonFile && !jsonPaste) {
+    return alert('Please provide a TXT file, JSON file, or JSON paste.');
+  }
+
+  const formData = new FormData();
+  formData.append('recipient', recipient);
+  formData.append('hereName', hereName);
+  formData.append('lastName', lastName);
+  formData.append('sendTime', sendTime);
+  if (txtFile) formData.append('txtFile', txtFile);
+  if (jsonFile) formData.append('jsonFile', jsonFile);
+  if (jsonPaste) formData.append('jsonPaste', jsonPaste);
+
+  sending = true;
+  stopFlag = false;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('sentCount').textContent = '0';
+  document.getElementById('failedCount').textContent = '0';
+
+  appendTerminal(new Date().toISOString(), 'info', 'Starting send…');
+
+  try {
+    const res = await fetch('/api/send', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('totalCount').textContent = data.total;
+      appendTerminal(new Date().toISOString(), 'success',
+        `Done. Sent: ${data.sent}, Failed: ${data.failed}, Total: ${data.total}`);
+    } else {
+      appendTerminal(new Date().toISOString(), 'error', data.error || 'Send failed');
+    }
+  } catch (e) {
+    appendTerminal(new Date().toISOString(), 'error', e.message);
+  } finally {
+    sending = false;
+    document.getElementById('startBtn').disabled = false;
+  }
+}
+
+function stopSend() {
+  stopFlag = true;
+  appendTerminal(new Date().toISOString(), 'warn', 'Stop requested.');
+}
+
+connectSSE();
+appendTerminal(new Date().toISOString(), 'info', 'RK RAJA XWD dashboard ready.');
+</script>
+</body>
+</html>
